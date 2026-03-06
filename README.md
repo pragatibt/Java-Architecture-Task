@@ -98,4 +98,126 @@ Example JSON:
   "code": "USER_NOT_FOUND"
 }
 
+9.Nineth day task
+1. Entity-DTO Conversion Rules
+a. Basic Guidelines
+
+Separate layers: Entities represent the database, DTOs represent API payloads. Never expose JPA entities directly in responses.
+
+Immutable DTOs: Prefer immutable DTOs (final fields, constructors) for thread-safety.
+
+Explicit mapping: Map only the fields needed; avoid automatic full-copy to prevent leaking sensitive data.
+
+Custom field transformations: If fields have different types (e.g., LocalDate → String), handle them explicitly.
+
+b. Using MapStruct
+
+MapStruct
+ is a compile-time mapper generator, which is fast and avoids reflection.
+
+Basic Mapper Example
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+    UserDTO toDto(UserEntity entity);
+    UserEntity toEntity(UserDTO dto);
+}
+
+componentModel = "spring" allows Spring to inject the mapper.
+
+MapStruct automatically maps fields with the same name.
+
+Deep Mapping (Nested Objects)
+@Mapper(componentModel = "spring")
+public interface OrderMapper {
+
+    @Mapping(source = "user", target = "userDto")
+    @Mapping(source = "items", target = "itemsDto")
+    OrderDTO toDto(OrderEntity order);
+
+    @Mapping(source = "userDto", target = "user")
+    @Mapping(source = "itemsDto", target = "items")
+    OrderEntity toEntity(OrderDTO orderDto);
+
+    List<ItemDTO> toItemDtoList(List<ItemEntity> items);
+    List<ItemEntity> toItemEntityList(List<ItemDTO> itemsDto);
+}
+
+Nested objects (User, Item) are mapped recursively.
+
+Use @Mapping to handle fields with different names or types.
+
+Advanced: Custom Type Conversion
+default String mapDate(LocalDate date) {
+    return date != null ? date.format(DateTimeFormatter.ISO_DATE) : null;
+}
+2. Nested DTO Validation
+
+Spring’s validation annotations work with nested objects using @Valid.
+
+public class OrderDTO {
+    @NotNull
+    private Long id;
+
+    @Valid
+    private UserDTO user;
+
+    @Valid
+    @NotEmpty
+    private List<ItemDTO> items;
+}
+
+public class ItemDTO {
+    @NotNull
+    private String name;
+
+    @Min(1)
+    private Integer quantity;
+}
+
+@Valid ensures that nested DTOs and lists are validated.
+
+Combine with @RequestBody in controllers:
+
+@PostMapping("/orders")
+public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDto) {
+    ...
+}
+3. Avoiding Cyclic Dependencies in Response Models
+
+Cyclic dependencies usually occur when entities reference each other (e.g., User → Orders → User).
+
+Strategies:
+
+Use DTOs for response (never expose bidirectional entities)
+
+Break cycles with selective mapping
+
+public class UserDTO {
+    private Long id;
+    private String name;
+    // Do NOT include orders here to avoid cycle
+}
+
+public class OrderDTO {
+    private Long id;
+    private String description;
+    private UserDTO user; // Include user info but without orders
+}
+
+MapStruct context to prevent recursion
+
+@Context
+CycleAvoidingMappingContext context;
+
+Advanced MapStruct setup can avoid infinite recursion in deep object graphs.
+
+Jackson annotations (for serialization only)
+
+@JsonManagedReference
+private User user;
+
+@JsonBackReference
+private List<Order> orders;
+
+This only works for JSON serialization, not DTO mapping.
 
