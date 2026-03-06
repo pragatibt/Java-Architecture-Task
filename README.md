@@ -98,7 +98,7 @@ Example JSON:
   "code": "USER_NOT_FOUND"
 }
 
-9.Nineth day task
+8.Eighth day task
 1. Entity-DTO Conversion Rules
 a. Basic Guidelines
 
@@ -220,4 +220,257 @@ private User user;
 private List<Order> orders;
 
 This only works for JSON serialization, not DTO mapping.
+
+9.Nineth day task
+1. Normalization & Denormalization
+Normalization
+
+Normalization is the process of organizing database tables to reduce redundancy and improve data integrity.
+
+Goals
+
+Eliminate duplicate data
+
+Ensure logical data storage
+
+Maintain consistency
+
+Common Normal Forms
+
+1NF (First Normal Form)
+
+No repeating groups
+
+Each column has atomic values
+
+2NF (Second Normal Form)
+
+Must be in 1NF
+
+Remove partial dependency on composite keys
+
+3NF (Third Normal Form)
+
+Must be in 2NF
+
+Remove transitive dependency
+
+Example (Not Normalized)
+OrderID	CustomerName	Product	Price
+1	Rahul	Phone	20000
+1	Rahul	Charger	500
+Normalized Tables
+
+Customers
+
+CustomerID	Name
+1	Rahul
+
+Orders
+
+OrderID	CustomerID
+1	1
+
+OrderItems
+
+| OrderID | Product | Price |
+
+Denormalization
+
+Denormalization intentionally adds redundancy to improve read performance.
+
+Example:
+
+| OrderID | CustomerName | Product | Price |
+
+Advantages
+
+Faster reads
+
+Fewer joins
+
+Disadvantages
+
+Data duplication
+
+Update anomalies
+
+Used in:
+
+analytics
+
+reporting systems
+
+large-scale applications
+
+2. Indexing Strategy
+
+Indexes improve query performance by avoiding full table scans.
+
+BTREE Index
+
+Most common index type used in databases like MySQL.
+
+Structure: Balanced Tree
+
+Best for:
+
+equality search (=)
+
+range queries (> < BETWEEN)
+
+sorting (ORDER BY)
+
+Example:
+
+CREATE INDEX idx_user_email
+ON users(email);
+Composite Index
+
+Index built on multiple columns.
+
+Example:
+
+CREATE INDEX idx_user_name_age
+ON users(name, age);
+
+Works best when query follows leftmost prefix rule.
+
+Good query:
+
+SELECT * FROM users WHERE name='Rahul';
+
+Also good:
+
+SELECT * FROM users WHERE name='Rahul' AND age=25;
+
+Bad usage:
+
+SELECT * FROM users WHERE age=25;
+3. Joins & Their Performance Costs
+
+Joins combine rows from multiple tables.
+
+Types of Joins
+Join Type	Description
+INNER JOIN	matching records only
+LEFT JOIN	all left table rows
+RIGHT JOIN	all right table rows
+FULL JOIN	all rows from both
+
+Example:
+
+SELECT orders.id, customers.name
+FROM orders
+JOIN customers
+ON orders.customer_id = customers.id;
+Performance Costs
+
+Joins can be expensive because they may require:
+
+Nested Loop Join
+
+Hash Join
+
+Merge Join
+
+Performance depends on:
+
+indexes
+
+table size
+
+join condition
+
+query plan
+
+Large joins without indexes → full table scans
+
+4. Query Execution Plan (EXPLAIN)
+
+EXPLAIN shows how the database will execute a query.
+
+Example:
+
+EXPLAIN SELECT * FROM users WHERE email='test@mail.com';
+
+It reveals:
+
+index usage
+
+join method
+
+rows scanned
+
+cost estimate
+
+Example output fields:
+
+Column	Meaning
+type	join type
+key	index used
+rows	estimated rows scanned
+Extra	additional operations
+
+Important performance indicators:
+
+ALL → full table scan (bad)
+
+ref / range → indexed lookup (good)
+
+5. ACID Properties
+
+ACID ensures reliable database transactions.
+
+A — Atomicity
+
+Transaction is all or nothing.
+
+Example:
+Money transfer:
+
+debit
+
+credit
+
+If one fails → rollback.
+
+C — Consistency
+
+Database moves from one valid state to another.
+
+Constraints remain valid:
+
+primary keys
+
+foreign keys
+
+checks
+
+I — Isolation
+
+Transactions should not interfere with each other.
+
+Isolation levels:
+
+Read Uncommitted
+
+Read Committed
+
+Repeatable Read
+
+Serializable
+
+Higher isolation → more consistency but slower performance.
+
+D — Durability
+
+Once transaction commits → data is permanently stored.
+
+Even after:
+
+system crash
+
+power failure
+
 
