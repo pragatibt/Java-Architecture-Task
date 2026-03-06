@@ -1,0 +1,33 @@
+package com.example.demo.service;
+
+import com.example.demo.dto.PatientDTO;
+import com.example.demo.entity.Patient;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PatientService {
+
+    // Entity → DTO
+    public PatientDTO convertToDTO(Patient patient) {
+
+        PatientDTO dto = new PatientDTO();
+        dto.setId(patient.getId());
+        dto.setName(patient.getName());
+        dto.setAge(patient.getAge());
+        dto.setEmail(patient.getEmail());
+
+        return dto;
+    }
+
+    // DTO → Entity
+    public Patient convertToEntity(PatientDTO dto) {
+
+        Patient patient = new Patient();
+        patient.setId(dto.getId());
+        patient.setName(dto.getName());
+        patient.setAge(dto.getAge());
+        patient.setEmail(dto.getEmail());
+
+        return patient;
+    }
+}
