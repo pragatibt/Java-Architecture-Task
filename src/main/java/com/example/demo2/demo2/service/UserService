@@ -1,0 +1,22 @@
+package com.example.demo2.demo2.service;
+@Service
+public class UserService {
+
+    private final UserRepository repo;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository repo,
+                       PasswordEncoder passwordEncoder) {
+        this.repo = repo;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public User register(User user) {
+
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
+
+        return repo.save(user);
+    }
+}

@@ -1,0 +1,32 @@
+package com.example.demo.demo.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/doctor")
+public class DoctorController {
+
+    // Create prescription
+    @PostMapping("/prescription")
+    public String createPrescription() {
+        return "Doctor created prescription";
+    }
+
+    // View patient details
+    @GetMapping("/patients")
+    public String viewPatients() {
+        return "Doctor viewing patients";
+    }
+
+    // Update prescription
+    @PutMapping("/prescription/{id}")
+    public String updatePrescription(@PathVariable Long id) {
+        return "Prescription updated with id: " + id;
+    }
+
+    // Delete prescription
+    @DeleteMapping("/prescription/{id}")
+    public String deletePrescription(@PathVariable Long id) {
+        return "Prescription deleted with id: " + id;
+    }
+}
