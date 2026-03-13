@@ -1,0 +1,32 @@
+package com.example.demo.demo.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/patient")
+public class PatientController {
+
+    // View own profile
+    @GetMapping("/profile")
+    public String viewProfile() {
+        return "Patient profile details";
+    }
+
+    // Update profile
+    @PutMapping("/profile")
+    public String updateProfile() {
+        return "Patient profile updated";
+    }
+
+    // Book appointment
+    @PostMapping("/appointment")
+    public String bookAppointment() {
+        return "Appointment booked successfully";
+    }
+
+    // View appointments
+    @GetMapping("/appointments")
+    public String viewAppointments() {
+        return "Patient appointments list";
+    }
+}
