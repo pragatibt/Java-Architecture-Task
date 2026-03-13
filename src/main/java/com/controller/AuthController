@@ -1,0 +1,35 @@
+package com.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.hospital.backend.util.JwtUtil;
+import com.dto.LoginRequest;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+
+        String correctUsername = "user";
+        String correctPassword = "ab1399da-80ad-458a-9aa4-0e28bc30d6ff";
+
+        if(correctUsername.equals(loginRequest.getUsername()) &&
+           correctPassword.equals(loginRequest.getPassword())) {
+
+            String token = JwtUtil.generateToken(loginRequest.getUsername());
+            return ResponseEntity.ok(new AuthResponse(token));
+        }
+
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+
+    static class AuthResponse {
+        private String token;
+
+        public AuthResponse(String token) { this.token = token; }
+        public String getToken() { return token; }
+        public void setToken(String token) { this.token = token; }
+    }
+}

@@ -1,0 +1,13 @@
+
+package com.controller;
+
+import org.springframework.web.bind.annotation.*;
+@RestController
+@RequestMapping("/billing")
+public class BillingController {
+
+    @GetMapping
+    public String billing(){
+        return "Billing data secured";
+    }
+}
