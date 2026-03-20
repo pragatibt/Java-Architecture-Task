@@ -108,6 +108,180 @@ Simple to set up (docker swarm init).
 
 Handles load balancing, scaling, and secrets.
 
+19. 19 th day task
+    . Reverse Proxy Benefits (NGINX)
+
+A reverse proxy sits between users and your backend services.
+
+ Key Benefits:
+
+Security
+Hides internal services (e.g., your app runs on port 5000, but users only see port 80/443).
+
+Load Balancing
+Distributes traffic across multiple backend servers.
+
+SSL Termination
+Handles HTTPS so your app doesn’t need to.
+
+Caching
+Speeds up responses for static or repeated requests.
+
+Routing
+Directs requests:
+
+/api → backend service
+
+/ → frontend
+
+Example:
+Client → NGINX → Node.js / Python / Java app
+2. SSL Termination using Let's Encrypt
+
+SSL termination means HTTPS is handled at the proxy level.
+
+ Why it matters:
+
+Encrypts user data (HTTPS)
+
+Improves trust (no browser warnings)
+
+Required for modern apps (cookies, APIs, etc.)
+
+How it works:
+
+Use Certbot to get free certificates from Let’s Encrypt
+
+Configure NGINX:
+
+Port 80 → redirect to 443
+
+Port 443 → uses SSL cert
+
+Auto-renewal:
+
+Let’s Encrypt certs expire every 90 days, so auto-renew via cron/systemd timer.
+
+3. Firewall Rules & Port Hardening
+Goal:
+
+Expose only what’s necessary.
+
+ Best Practices:
+
+Allow:
+
+22 → SSH (restrict to your IP ideally)
+
+80 → HTTP
+
+443 → HTTPS
+
+Block everything else
+
+ Tools:
+
+Linux firewall: ufw, iptables, or firewalld
+
+Extra Hardening:
+
+Disable root login over SSH
+
+Use SSH keys instead of passwords
+
+Change default SSH port (optional)
+
+Principle:
+
+“Deny by default, allow only what’s required”
+
+4. Using systemd to Manage Backend Service
+
+systemd is used to run your app as a background service.
+
+Why use systemd:
+
+Auto-start on boot
+
+Restart on failure
+
+Centralized logging (journalctl)
+
+Easy control (start/stop/restart)
+
+📄 Example service file:
+/etc/systemd/system/myapp.service
+
+[Unit]
+Description=My Backend App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/app
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+🔧 Commands:
+sudo systemctl daemon-reexec
+sudo systemctl enable myapp
+sudo systemctl start myapp
+sudo systemctl status myapp
+5. Zero Downtime Deployment Strategies
+
+Goal: Deploy updates without users noticing interruptions.
+
+Common Strategies:
+1. Rolling Deployment
+
+Update servers one by one
+
+No full outage
+
+2. Blue-Green Deployment
+
+Two environments:
+
+Blue (current)
+
+Green (new)
+
+Switch traffic instantly
+
+3. Canary Deployment
+
+Release to small % of users first
+
+Monitor before full rollout
+
+4. Process Reload (NGINX + app)
+
+Restart app gracefully:
+
+pm2 reload all
+
+or systemd restart with minimal disruption
+
+5. Load Balancer Approach
+
+Remove instance → update → re-add
+
+🔗 How Everything Fits Together
+
+Typical production flow:
+
+User (HTTPS)
+   ↓
+NGINX (Reverse Proxy + SSL Termination)
+   ↓
+Backend Service (systemd managed)
+   ↓
+Database
+
+
+
 
 
 
