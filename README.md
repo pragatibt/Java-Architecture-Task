@@ -280,6 +280,109 @@ Backend Service (systemd managed)
    ↓
 Database
 
+20.20 th day task
+
+1️. Refactoring Strategies (SOLID, DRY, KISS)
+
+Purpose: Make your code easier to maintain, extend, and test.
+
+SOLID principles:
+S – Single Responsibility: Each class should have one reason to change.
+O – Open/Closed: Classes should be open for extension, closed for modification.
+L – Liskov Substitution: Subclasses should replace base classes without breaking behavior.
+I – Interface Segregation: Use small, focused interfaces instead of one big interface.
+D – Dependency Inversion: Depend on abstractions, not concrete classes.
+
+Example in Spring Boot:
+
+// BAD: Single class doing everything
+public class OrderService {
+    public void fetchOrders() { ... }
+    public void saveOrders() { ... }
+    public void notifyUser() { ... }
+}
+
+// GOOD: Separate responsibilities
+@Service
+public class OrderFetcher { ... }
+
+@Service
+public class OrderSaver { ... }
+
+@Service
+public class NotificationService { ... }
+DRY (Don’t Repeat Yourself):
+Avoid duplicate code. Extract reusable methods or utilities.
+KISS (Keep It Simple, Stupid):
+Avoid overengineering. Simple and readable code is better than clever but confusing code.
+2️. SQL Performance Tuning for Slow Queries
+
+Purpose: Make database operations faster.
+
+Use indexes on frequently queried columns:
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+Avoid SELECT *; specify only the columns you need:
+SELECT id, amount FROM orders WHERE user_id = ?;
+Use query analysis tools:
+MySQL: EXPLAIN SELECT ...
+Workbench → Query Performance Analyzer
+Optimize joins, batch inserts, and caching.
+3️. Logging Improvements (Structured Logging)
+
+Purpose: Make logs easier to read, analyze, and monitor in production.
+
+Use Logback or Log4j2 JSON format:
+<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+    <providers>
+        <timestamp />
+        <loggerName />
+        <logLevel />
+        <threadName />
+        <message />
+    </providers>
+</encoder>
+Include request IDs, user IDs, and service names.
+Avoid printing sensitive data in logs.
+4️. Exception Consistency & Documentation
+
+Purpose: Make error handling predictable and easy to debug.
+
+Create custom exceptions:
+public class OrderNotFoundException extends RuntimeException {
+    public OrderNotFoundException(String message) { super(message); }
+}
+Use @ControllerAdvice for global exception handling:
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<String> handleOrderNotFound(OrderNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+}
+Document possible exceptions in your API or README.
+5️.API Change Management
+
+Purpose: Safely change APIs without breaking clients.
+
+Use versioning:
+GET /api/v1/orders
+GET /api/v2/orders
+Maintain backward compatibility.
+Communicate changes in README or API documentation (Swagger/OpenAPI).
+6️. Preparing Project for Production
+
+Checklist:
+
+ Externalize configuration (application.properties → environment variables)
+ Enable connection pooling (HikariCP)
+ Enable structured logging & monitoring
+ Secure endpoints (Spring Security, JWT, HTTPS)
+ Validate DB migrations & seed data
+ Build fat jar for deployment:
+mvn clean package
+
+
+
 
 
 
